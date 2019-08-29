@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResourceReader {
+    public static String getPathMain(){
+        String appPath = System.getProperty("user.dir") ;
+        return appPath + "/src/main/";
+    }
+    public static String getPathResources(){
+        return getPathMain() + "resources/";
+    }
 
     public static List<String> readLinesFromResources(String resourceFilePath) throws IOException {
         List<String> allLines = new ArrayList<>();

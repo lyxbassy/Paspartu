@@ -1,5 +1,10 @@
 package resources;
 
+import com.google.googlejavaformat.java.Formatter;
+import com.google.googlejavaformat.java.FormatterException;
+import parser.TextParser;
+
+import javax.xml.soap.Text;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
@@ -7,16 +12,22 @@ import java.util.regex.Pattern;
 
 public class ResourceIndexBuilder {
 
-    private boolean pathsAbsolute;
-    private boolean pathsRelative;
+    private boolean pathsAbsolute = false;
+    private boolean pathsRelative = true;
     private String classPackagePath;
     private String className;
+    private File resourcePath;
 
     public ResourceIndexBuilder(){
 
     }
 
-    public String build(){
+    public String build(String resourcePathString) throws FormatterException {
+        this.resourcePath = new File(resourcePathString);
+        if (!resourcePath.isDirectory()){
+            throw new IllegalArgumentException("The path supplied to ResourceIndexBuilder is a file. Supply a folder path and run again");
+        }
+
         String appPath = System.getProperty("user.dir") ;
         String appendPackage = classPackagePath.replaceAll(Pattern.quote("."), "/") + "/";
         String fileName = appPath + "/src/main/java/" + appendPackage + className + ".java";
@@ -36,8 +47,12 @@ public class ResourceIndexBuilder {
         return classContent;
     }
 
-    private String generateClassContent(){
-        return  getPackagePath() + getPublicClassSyntax();
+    private String generateClassContent() throws FormatterException {
+        String classContent =  getInnerClasser();
+        classContent = classContent.substring(classContent.indexOf(System.getProperty("line.separator"))+1);
+        classContent = getPublicClassSyntax() + classContent;
+
+        return new Formatter().formatSource(getPackagePath() + classContent);
     }
 
     private String getPackagePath() {
@@ -45,24 +60,17 @@ public class ResourceIndexBuilder {
     }
 
     private String getPublicClassSyntax() {
-        return String.format("public class %s {\n%s\n}", className, getInnerClasser());
-    }
-
-
-    private String getResourcesPath(){
-        String appPath = System.getProperty("user.dir") ;
-
-        String fileName = appPath + "/src/main/resources/";
-        return fileName;
+        return String.format("public class %s {\n", className);
     }
 
     private String getInnerClasser() {
-        List<File> files = new FileFinder().find(getResourcesPath());
+        List<File> files = new FileFinder().find(resourcePath.getAbsolutePath());
         Folder folder = new Folder();
+        folder.setFolder(new File(resourcePath.getAbsolutePath()));
+
         for (File f : files) {
             folder.add(f);
         }
-
 
         String s = getStaticClassSyntax(folder);
         System.out.println(s);
@@ -75,24 +83,34 @@ public class ResourceIndexBuilder {
 
     private String getStaticClassSyntax(Folder folder, String padding) {
 
-
         String all = "";
 
         for (Map.Entry<String, Folder> entry : folder.getFolders().entrySet()) {
             String allFields = "";
             String staticClassField = "public static String %s = \"%s\";\n";
-            for (String file : entry.getValue().getFiles()) {
-                String[] split = file.split(File.separator);
+            for (File file : entry.getValue().getFiles()) {
+                String[] split = file.getName().split(File.separator);
                 String fieldName = split[split.length-1];
-                fieldName = fieldName.replaceAll("\\..*", "");
+
+                fieldName = FileHandler.stripFileExtension(fieldName);
+                fieldName = fieldName.replaceAll("\\.", "_");
                 allFields += (padding + "   ");
-                allFields += String.format(staticClassField, fieldName, file);
+
+
+                String fieldValue = "";
+                if (pathsAbsolute){
+                    fieldValue = file.getAbsolutePath();
+                }else{
+                    fieldValue = file.getAbsolutePath().substring(resourcePath.getAbsolutePath().length() + 1);
+                }
+
+                allFields += String.format(staticClassField, fieldName,  fieldValue);
             }
             allFields += "\n";
 
 
             String sss = padding + "public static class %s {\n";
-            sss = String.format(sss, entry.getKey());
+            sss = String.format(sss, TextParser.capitalizeString(entry.getKey()));
             sss +=  allFields;
             sss += "%s}\n";
             all += sss;
@@ -106,11 +124,6 @@ public class ResourceIndexBuilder {
         return all;
     }
 
-    private String getPublicClassSyntax(String className){
-        return String.format("public class %s {", className);
-    }
-
-
     private String getInnerClassSyntax(String className){
         return "public static class "+ getClassNameUppercase(className) +" {%s}";
     }
@@ -119,9 +132,13 @@ public class ResourceIndexBuilder {
         return className.substring(0,1).toUpperCase() + className.substring(1);
     }
 
-
     public ResourceIndexBuilder withFileFinder(FileFinder fileFinder){
+        return this;
+    }
 
+    public ResourceIndexBuilder withClass(Class clas){
+        this.classPackagePath =  (clas.getPackage() + "").replaceAll("package", "").trim();
+        this.className = clas.getSimpleName();
         return this;
     }
 
@@ -135,23 +152,31 @@ public class ResourceIndexBuilder {
         return this;
     }
 
-    public ResourceIndexBuilder withClass(Class clas){
-        this.classPackagePath =  (clas.getPackage() + "").replaceAll("package", "").trim();
-        this.className = clas.getSimpleName();
+    public ResourceIndexBuilder withPathsAbsolute(){
+        this.pathsAbsolute = true;
+        this.pathsRelative = false;
         return this;
     }
 
+    public ResourceIndexBuilder withPathsRelative(){
+        this.pathsAbsolute = false;
+        this.pathsRelative = true;
+        return this;
+    }
+
+
+
     class Folder {
         File folder;
+        Folder parentFolder;
 
         Map<String, Folder> folders = new HashMap<>();
-        List<String> files = new ArrayList<>();
+        List<File> files = new ArrayList<>();
 
         void add(File f){
-            String filepath = f.getAbsolutePath().substring(getResourcesPath().length());
+            String filepath = f.getAbsolutePath().substring(resourcePath.getAbsolutePath().length());
 
             String[] split = filepath.split(File.separator);
-            Folder folder = new Folder();
 
             Folder folderToAdd = this;
             for (int i = 0; i < split.length - 1; i++) {
@@ -159,10 +184,13 @@ public class ResourceIndexBuilder {
                 if (!folderToAdd.getFolders().containsKey(folderName)){
                     folderToAdd.getFolders().put(folderName, new Folder());
                 }
+
+                Folder parentFolder = folderToAdd;
                 folderToAdd = folderToAdd.getFolders().get(folderName);
+                folderToAdd.setParentFolder(parentFolder);
             }
 
-            folderToAdd.getFiles().add(filepath);
+            folderToAdd.getFiles().add(f);
             System.out.println(Arrays.toString(split));
         }
 
@@ -174,11 +202,11 @@ public class ResourceIndexBuilder {
             this.folders = folders;
         }
 
-        public List<String> getFiles() {
+        public List<File> getFiles() {
             return files;
         }
 
-        public void setFiles(List<String> files) {
+        public void setFiles(List<File> files) {
             this.files = files;
         }
 
@@ -188,6 +216,14 @@ public class ResourceIndexBuilder {
 
         public void setFolder(File folder) {
             this.folder = folder;
+        }
+
+        public Folder getParentFolder() {
+            return parentFolder;
+        }
+
+        public void setParentFolder(Folder parentFolder) {
+            this.parentFolder = parentFolder;
         }
 
         @Override
