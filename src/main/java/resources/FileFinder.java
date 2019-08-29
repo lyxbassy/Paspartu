@@ -1,5 +1,7 @@
 package resources;
 
+import tester.R;
+
 import java.io.File;
 import java.util.*;
 
@@ -37,6 +39,7 @@ public class FileFinder {
 
     public FileFinder isRecursive(boolean isRecursive){
         this.isSearchRecursive = isRecursive;
+
         return this;
     }
 
