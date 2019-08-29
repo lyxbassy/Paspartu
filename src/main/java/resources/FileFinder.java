@@ -1,7 +1,5 @@
 package resources;
 
-import tester.R;
-
 import java.io.File;
 import java.util.*;
 

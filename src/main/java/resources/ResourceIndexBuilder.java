@@ -1,7 +1,5 @@
 package resources;
 
-import resources.model.Folder;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
@@ -62,8 +60,7 @@ public class ResourceIndexBuilder {
         List<File> files = new FileFinder().find(getResourcesPath());
         Folder folder = new Folder();
         for (File f : files) {
-            String filepath = f.getAbsolutePath().substring(getResourcesPath().length());
-            folder.add(filepath);
+            folder.add(f);
         }
 
 
@@ -73,7 +70,7 @@ public class ResourceIndexBuilder {
     }
 
     private String getStaticClassSyntax(Folder folder){
-        return getStaticClassSyntax(folder, "");
+        return getStaticClassSyntax(folder, "  ");
     }
 
     private String getStaticClassSyntax(Folder folder, String padding) {
@@ -88,7 +85,7 @@ public class ResourceIndexBuilder {
                 String[] split = file.split(File.separator);
                 String fieldName = split[split.length-1];
                 fieldName = fieldName.replaceAll("\\..*", "");
-                allFields += (padding + padding);
+                allFields += (padding + "   ");
                 allFields += String.format(staticClassField, fieldName, file);
             }
             allFields += "\n";
@@ -102,11 +99,8 @@ public class ResourceIndexBuilder {
 
             System.out.println(folder);
 
-
-
-
             Folder value = entry.getValue();
-            all = String.format(all, getStaticClassSyntax(value, padding + "  "));
+            all = String.format(all, getStaticClassSyntax(value, padding + padding));
         }
 
         return all;
@@ -148,10 +142,14 @@ public class ResourceIndexBuilder {
     }
 
     class Folder {
+        File folder;
+
         Map<String, Folder> folders = new HashMap<>();
         List<String> files = new ArrayList<>();
 
-        void add(String filepath){
+        void add(File f){
+            String filepath = f.getAbsolutePath().substring(getResourcesPath().length());
+
             String[] split = filepath.split(File.separator);
             Folder folder = new Folder();
 
@@ -184,10 +182,19 @@ public class ResourceIndexBuilder {
             this.files = files;
         }
 
+        public File getFolder() {
+            return folder;
+        }
+
+        public void setFolder(File folder) {
+            this.folder = folder;
+        }
+
         @Override
         public String toString() {
             return "Folder{" +
-                    "folders=" + folders +
+                    "folder=" + folder +
+                    ", folders=" + folders +
                     ", files=" + files +
                     '}';
         }

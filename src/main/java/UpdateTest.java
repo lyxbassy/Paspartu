@@ -1,9 +1,5 @@
-import resources.FileFinder;
 import resources.ResourceIndexBuilder;
 import tester.R;
-
-import java.io.File;
-import java.util.List;
 
 public class UpdateTest {
 
