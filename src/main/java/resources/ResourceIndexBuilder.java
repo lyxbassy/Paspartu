@@ -4,7 +4,6 @@ import com.google.googlejavaformat.java.Formatter;
 import com.google.googlejavaformat.java.FormatterException;
 import parser.TextParser;
 
-import javax.xml.soap.Text;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
@@ -92,7 +91,7 @@ public class ResourceIndexBuilder {
                 String[] split = file.getName().split(File.separator);
                 String fieldName = split[split.length-1];
 
-                fieldName = FileHandler.stripFileExtension(fieldName);
+                fieldName = FileUtility.stripFileExtension(fieldName);
                 fieldName = fieldName.replaceAll("\\.", "_");
                 allFields += (padding + "   ");
 

@@ -1,13 +1,13 @@
 package resources;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResourceReader {
+public class ResourceUtility {
+
     public static String getPathMain(){
         String appPath = System.getProperty("user.dir") ;
         return appPath + "/src/main/";
@@ -16,10 +16,17 @@ public class ResourceReader {
         return getPathMain() + "resources/";
     }
 
+    public static String getPathJar() throws URISyntaxException {
+        CodeSource codeSource = ResourceUtility.class.getProtectionDomain().getCodeSource();
+        File jarFile = new File(codeSource.getLocation().toURI().getPath());
+        String jarDir = jarFile.getParentFile().getPath();
+        return jarDir;
+    }
+
     public static List<String> readLinesFromResources(String resourceFilePath) throws IOException {
         List<String> allLines = new ArrayList<>();
 
-        InputStream resourceAsStream = ResourceReader.class.getClassLoader().getResourceAsStream(resourceFilePath);
+        InputStream resourceAsStream = ResourceUtility.class.getClassLoader().getResourceAsStream(resourceFilePath);
         if (resourceAsStream != null){
             BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream));
             String line;
@@ -43,5 +50,4 @@ public class ResourceReader {
 
         return sb.toString();
     }
-
 }

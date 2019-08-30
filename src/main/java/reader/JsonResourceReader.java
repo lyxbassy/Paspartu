@@ -1,7 +1,7 @@
 package reader;
 
 import com.google.gson.Gson;
-import resources.ResourceReader;
+import resources.ResourceUtility;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public abstract class JsonResourceReader<T> {
 
         String jsonInString = null;
         try {
-            jsonInString = ResourceReader.readLinesFromResourcesAsString(getResourceFilePath());
+            jsonInString = ResourceUtility.readLinesFromResourcesAsString(getResourceFilePath());
             T config= gson.fromJson(jsonInString, contentClass);
             return config;
 
