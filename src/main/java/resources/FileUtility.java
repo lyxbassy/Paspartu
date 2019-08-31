@@ -24,6 +24,21 @@ public class FileUtility {
         return str.substring(0, pos);
     }
 
+    private static String getParentFolder(String path) {
+        File file = new File(path);
+        if (file.isDirectory()){
+            return file.getAbsolutePath() + "/";
+        }
+        return file.getParent() + "/";
+    }
+
+    private static String getParentFolder(File file) {
+        if (file.isDirectory()){
+            return file.getAbsolutePath() + "/";
+        }
+        return file.getParent() + "/";
+    }
+
     private List<String> readFileToStringList(String pathname) throws IOException {
         File file = new File(pathname);
         List<String> lines = new ArrayList<>();
