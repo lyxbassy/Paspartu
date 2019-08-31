@@ -1,90 +1,95 @@
 package resources.model;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.util.*;
 
 public class Folder {
+    File folder;
+    Folder parentFolder;
+    File headPath;
 
-    private String name;
-    private List<Folder> folders;
-    private String absolutePath;
-    private String relativePath;
-    private List<String> fileNames;
+    Map<String, Folder> folders = new HashMap<>();
+    List<File> files = new ArrayList<>();
 
-    public String getRelativePath() {
-        return relativePath;
+    public Folder (String headPath){
+        this.headPath = new File(headPath);
     }
 
-    public void setRelativePath(String relativePath) {
-        this.relativePath = relativePath;
+    public Folder (File headPath){
+        this.headPath = headPath;
     }
 
-    public String getName() {
-        return name;
+    public Folder (){
     }
 
-    public List<Folder> getFolders() {
+    public File getHeadPath() {
+        return headPath;
+    }
+
+    public void setHeadPath(File headPath) {
+        this.headPath = headPath;
+    }
+
+    public void add(File f){
+        String filepath = f.getAbsolutePath().substring(headPath.getAbsolutePath().length());
+
+        String[] split = filepath.split(File.separator);
+
+        Folder folderToAdd = this;
+        for (int i = 0; i < split.length - 1; i++) {
+            String folderName = split[i];
+            if (!folderToAdd.getFolders().containsKey(folderName)){
+                folderToAdd.getFolders().put(folderName, new Folder(headPath));
+            }
+
+            Folder parentFolder = folderToAdd;
+            folderToAdd = folderToAdd.getFolders().get(folderName);
+            folderToAdd.setParentFolder(parentFolder);
+        }
+
+        folderToAdd.getFiles().add(f);
+        System.out.println(Arrays.toString(split));
+    }
+
+    public Map<String, Folder> getFolders() {
         return folders;
     }
 
-    public List<String> getFiles() {
-        return fileNames;
+    public void setFolders(Map<String, Folder> folders) {
+        this.folders = folders;
     }
 
-    public Folder() {
-        folders = new ArrayList<>();
-        fileNames = new ArrayList<>();
+    public List<File> getFiles() {
+        return files;
     }
 
-    public Folder(String newFolderName) {
-        this.name = newFolderName;
-        folders = new ArrayList<>();
-        fileNames = new ArrayList<>();
+    public void setFiles(List<File> files) {
+        this.files = files;
     }
 
-
-    public boolean hasLocalFolder(String newFolderName) {
-        for (Folder folder : folders) {
-            if (folder.name.equals(newFolderName)) {
-                return true;
-            }
-        }
-        return false;
+    public File getFolder() {
+        return folder;
     }
 
-    public void addFile(String file) {
-        System.out.println("Added file " + file);
-        fileNames.add(file);
+    public void setFolder(File folder) {
+        this.folder = folder;
     }
 
-    public Folder getLocalFolder(String newFolderName) {
-        for (Folder folder : folders) {
-            if (folder.name.equals(newFolderName)) {
-                return folder;
-            }
-        }
-        throw new RuntimeException("No folder");
+    public Folder getParentFolder() {
+        return parentFolder;
     }
 
-    public void print(String padding) {
-        System.out.println(padding + name);
-        System.out.println(padding + fileNames);
-        System.out.println(padding + absolutePath);
-        for (Folder folder : folders) {
-            folder.print(padding + "\t");
-        }
+    public void setParentFolder(Folder parentFolder) {
+        this.parentFolder = parentFolder;
     }
 
-    public void addFolder(Folder newFolder) {
-        this.getFolders().add(newFolder);
-    }
-
-    public void setAbsolutePath(String parent) {
-        this.absolutePath = parent;
-    }
-
-    public String getAbsolutePath() {
-        return this.absolutePath;
+    @Override
+    public String toString() {
+        return "Folder{" +
+                "folder=" + folder +
+                ", folders=" + folders +
+                ", files=" + files +
+                '}';
     }
 }

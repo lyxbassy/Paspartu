@@ -1,9 +1,6 @@
 package resources;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -72,6 +69,15 @@ public class FileUtility {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
         writer.write(content);
         writer.close();
+    }
+
+    private static void writeByteToFile(byte[] b, String path) throws IOException {
+        File file = new File(path);
+        file.getParentFile().mkdir();
+
+        FileOutputStream fos = new FileOutputStream(path);
+        fos.write(b);
+        fos.close();
     }
 
 }

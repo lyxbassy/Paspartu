@@ -19,7 +19,7 @@ public class ResourceUtility {
     public static String getPathJar() throws URISyntaxException {
         CodeSource codeSource = ResourceUtility.class.getProtectionDomain().getCodeSource();
         File jarFile = new File(codeSource.getLocation().toURI().getPath());
-        String jarDir = jarFile.getParentFile().getPath();
+        String jarDir = jarFile.getParentFile().getPath() + "/";
         return jarDir;
     }
 

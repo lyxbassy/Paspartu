@@ -4,11 +4,12 @@ import resources.ResourceUtility;
 import tester.R;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class UpdateTest {
 
-    public static void main(String[] args) throws FormatterException, IOException {
+    public static void main(String[] args) throws FormatterException, IOException, URISyntaxException {
         new ResourceIndexBuilder().withPathsRelative().withClass(R.class).build(ResourceUtility.getPathResources());
 
         List<String> strings = ResourceUtility.readLinesFromResources(R.Folder1.folder1_text1);
@@ -16,6 +17,7 @@ public class UpdateTest {
             System.out.println(string);
         }
 
+        System.out.println(ResourceUtility.getPathJar());
     }
 
 }

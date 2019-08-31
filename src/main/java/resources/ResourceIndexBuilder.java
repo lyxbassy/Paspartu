@@ -3,6 +3,7 @@ package resources;
 import com.google.googlejavaformat.java.Formatter;
 import com.google.googlejavaformat.java.FormatterException;
 import parser.TextParser;
+import resources.model.Folder;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -64,7 +65,7 @@ public class ResourceIndexBuilder {
 
     private String getInnerClasser() {
         List<File> files = new FileFinder().find(resourcePath.getAbsolutePath());
-        Folder folder = new Folder();
+        Folder folder = new Folder(resourcePath);
         folder.setFolder(new File(resourcePath.getAbsolutePath()));
 
         for (File f : files) {
@@ -92,7 +93,7 @@ public class ResourceIndexBuilder {
                 String fieldName = split[split.length-1];
 
                 fieldName = FileUtility.stripFileExtension(fieldName);
-                fieldName = fieldName.replaceAll("\\.", "_");
+                fieldName = fieldName.replaceAll("[^a-zA-z0-9$_]", "_");
                 allFields += (padding + "   ");
 
 
@@ -161,77 +162,5 @@ public class ResourceIndexBuilder {
         this.pathsAbsolute = false;
         this.pathsRelative = true;
         return this;
-    }
-
-
-
-    class Folder {
-        File folder;
-        Folder parentFolder;
-
-        Map<String, Folder> folders = new HashMap<>();
-        List<File> files = new ArrayList<>();
-
-        void add(File f){
-            String filepath = f.getAbsolutePath().substring(resourcePath.getAbsolutePath().length());
-
-            String[] split = filepath.split(File.separator);
-
-            Folder folderToAdd = this;
-            for (int i = 0; i < split.length - 1; i++) {
-                String folderName = split[i];
-                if (!folderToAdd.getFolders().containsKey(folderName)){
-                    folderToAdd.getFolders().put(folderName, new Folder());
-                }
-
-                Folder parentFolder = folderToAdd;
-                folderToAdd = folderToAdd.getFolders().get(folderName);
-                folderToAdd.setParentFolder(parentFolder);
-            }
-
-            folderToAdd.getFiles().add(f);
-            System.out.println(Arrays.toString(split));
-        }
-
-        public Map<String, Folder> getFolders() {
-            return folders;
-        }
-
-        public void setFolders(Map<String, Folder> folders) {
-            this.folders = folders;
-        }
-
-        public List<File> getFiles() {
-            return files;
-        }
-
-        public void setFiles(List<File> files) {
-            this.files = files;
-        }
-
-        public File getFolder() {
-            return folder;
-        }
-
-        public void setFolder(File folder) {
-            this.folder = folder;
-        }
-
-        public Folder getParentFolder() {
-            return parentFolder;
-        }
-
-        public void setParentFolder(Folder parentFolder) {
-            this.parentFolder = parentFolder;
-        }
-
-        @Override
-        public String toString() {
-            return "Folder{" +
-                    "folder=" + folder +
-                    ", folders=" + folders +
-                    ", files=" + files +
-                    '}';
-        }
     }
 }
