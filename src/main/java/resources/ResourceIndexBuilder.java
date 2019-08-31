@@ -29,7 +29,7 @@ public class ResourceIndexBuilder {
         }
 
         String appPath = System.getProperty("user.dir") ;
-        String appendPackage = classPackagePath.replaceAll(Pattern.quote("."), "/") + "/";
+        String appendPackage = classPackagePath.replaceAll(Pattern.quote("."), File.separator) + File.separator;
         String fileName = appPath + "/src/main/java/" + appendPackage + className + ".java";
 
         String classContent = generateClassContent();
@@ -110,7 +110,8 @@ public class ResourceIndexBuilder {
 
 
             String sss = padding + "public static class %s {\n";
-            sss = String.format(sss, TextParser.capitalizeString(entry.getKey()));
+            String className = TextParser.capitalizeString(entry.getKey());
+            sss = String.format(sss, className.replaceAll("[^a-zA-z0-9$_]", "_" ));
             sss +=  allFields;
             sss += "%s}\n";
             all += sss;

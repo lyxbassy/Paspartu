@@ -38,4 +38,8 @@ public class R {
       }
     }
   }
+
+  public static class MD_D {
+    public static String text3 = "MD-D/text3.txt";
+  }
 }
