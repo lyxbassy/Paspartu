@@ -45,6 +45,7 @@ public class Folder {
 
             Folder parentFolder = folderToAdd;
             folderToAdd = folderToAdd.getFolders().get(folderName);
+            folderToAdd.setFolder(f.getParentFile());
             folderToAdd.setParentFolder(parentFolder);
         }
 
