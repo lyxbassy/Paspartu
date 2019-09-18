@@ -63,12 +63,15 @@ public class ResourceIndexBuilder {
         classContent = getPublicClassSyntax() + classContent;
 
         System.out.println("---------");
-
-        System.out.println(classContent);
-        return new Formatter().formatSource(getPackagePath() + classContent);
+        String outputContent = getPackagePath() + classContent;
+        System.out.println(outputContent);
+        return new Formatter().formatSource(outputContent);
     }
 
     private String getPackagePath() {
+        if (classPackagePath.isEmpty()) {
+            return "";
+        }
         return "package " + classPackagePath + ";\n";
     }
 
