@@ -3,6 +3,7 @@ package resources.model;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Folder {
     File folder;
@@ -34,7 +35,8 @@ public class Folder {
     public void add(File f){
         String filepath = f.getAbsolutePath().substring(headPath.getAbsolutePath().length());
 
-        String[] split = filepath.split(File.separator);
+        System.out.println(filepath);
+        String[] split = filepath.split(Pattern.quote(File.separator));
 
         Folder folderToAdd = this;
         for (int i = 0; i < split.length - 1; i++) {

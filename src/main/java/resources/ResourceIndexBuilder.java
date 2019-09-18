@@ -18,10 +18,17 @@ public class ResourceIndexBuilder {
     private String className;
     private File resourcePath;
 
-    public ResourceIndexBuilder(){
-
-    }
-
+    /**
+     * Specify starting path of your resource folder.
+     * Function will recursively search for all the files starting from that path and fill class R with the data
+     *
+     * Example usage:
+     * new ResourceIndexBuilder().withClass(R.class).build("C:/Users/Comp/IdeaProjects/Paspartu/src/main/resources/");
+     *
+     * @param resourcePathString
+     * @return
+     * @throws FormatterException
+     */
     public String build(String resourcePathString) throws FormatterException {
         this.resourcePath = new File(resourcePathString);
         if (!resourcePath.isDirectory()){
@@ -49,9 +56,15 @@ public class ResourceIndexBuilder {
 
     private String generateClassContent() throws FormatterException {
         String classContent =  getInnerClasser();
-        classContent = classContent.substring(classContent.indexOf(System.getProperty("line.separator"))+1);
+
+        classContent = classContent.substring(classContent.indexOf("\n")+1);
+
+
         classContent = getPublicClassSyntax() + classContent;
 
+        System.out.println("---------");
+
+        System.out.println(classContent);
         return new Formatter().formatSource(getPackagePath() + classContent);
     }
 
@@ -89,7 +102,7 @@ public class ResourceIndexBuilder {
             String allFields = "";
             String staticClassField = "public static String %s = \"%s\";\n";
             for (File file : entry.getValue().getFiles()) {
-                String[] split = file.getName().split(File.separator);
+                String[] split = file.getName().split(Pattern.quote(File.separator));
                 String fieldName = split[split.length-1];
 
                 fieldName = FileUtility.stripFileExtension(fieldName);
@@ -104,6 +117,7 @@ public class ResourceIndexBuilder {
                     fieldValue = file.getAbsolutePath().substring(resourcePath.getAbsolutePath().length() + 1);
                 }
 
+                fieldValue = fieldValue.replaceAll(Pattern.quote("\\"), "/");
                 allFields += String.format(staticClassField, fieldName,  fieldValue);
             }
             allFields += "\n";
