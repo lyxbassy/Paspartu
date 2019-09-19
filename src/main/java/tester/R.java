@@ -39,17 +39,6 @@ public class R {
     }
   }
 
-  public static class English {
-    public static String CSV_Database_of_City = "english/CSV_Database_of_City.csv";
-    public static String CSV_Database_of_Names_Female = "english/CSV_Database_of_Names_Female.csv";
-    public static String CSV_Database_of_Names_Male = "english/CSV_Database_of_Names_Male.csv";
-    public static String CSV_Database_of_Street = "english/CSV_Database_of_Street.csv";
-    public static String CSV_Database_of_Surnames = "english/CSV_Database_of_Surnames.csv";
-    public static String CSV_Database_of_Word = "english/CSV_Database_of_Word.csv";
-    public static String names = "english/names.txt";
-    public static String set = "english/set.txt";
-  }
-
   public static class MD_D {
     public static String text3 = "MD-D/text3.txt";
   }
